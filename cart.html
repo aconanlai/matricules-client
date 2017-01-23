@@ -67,9 +67,7 @@ function visualize(numselected) {
 
   // create subrectangle 
   var createrect = Math.floor(Math.sqrt(numselected));
-  console.log(createrect);
   var remainder = numselected - (createrect * createrect);
-  console.log(remainder)
 
 // create the svg
 var svg = d3.select('#grid').append('svg')

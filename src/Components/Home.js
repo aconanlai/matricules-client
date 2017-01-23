@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Chart from './Chart2';
+import Chart from './Chart';
 import keywords from './keywords.json';
 import logo from './logo.png';
 
