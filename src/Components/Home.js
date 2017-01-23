@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Chart from './Chart';
+import Chart from './Chart2';
 import keywords from './keywords.json';
 import logo from './logo.png';
 
@@ -24,29 +24,37 @@ class Home extends Component {
     this.state = {
       keywords: [],
       selectedKeyword: '',
+      docs: [],
     };
     this.selectKeyword = this.selectKeyword.bind(this);
   }
 
   componentDidMount() {
-    fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=', {
-      method: 'get'
-    }).then(function(response) {
-      console.log(response)
-    }).catch(function(err) {
-      // Error :(
+    fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=').then((response) => {
+      return response.json();
+    }).then((json) => {
+      this.setState({ docs: json });
     });
+    setInterval(this.selectKeyword, 1000);
+  }
+    // fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=')
+    //   .then((response) => {
+    //     return response.json();
+    //   }).then((json) => {
+    //     console.log(json)
+    //   }).catch((err) => {
+    //   // Error :(
+    //   });
     // this.setState({
     //   keywords,
     //   docs
     // }, () => setInterval(this.selectKeyword, 1000));
-  }
 
   selectKeyword() {
     const rando = Math.floor(Math.random() * this.state.keywords.length + 1);
     this.setState({
-      selectedKeyword: keywords[rando].english
-    })
+      selectedKeyword: keywords[rando].english,
+    });
   }
 
   render() {

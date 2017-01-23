@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>d3 | simple square grid</title> 
+  <meta name="author" content="Sundar Singh | eesur.com">
+  
+  <style>
+    .font-styles {
+  font-family: "Source Code Pro", Consolas, monaco, monospace;
+  font-size: 18px; 
+  line-height: 1.5; 
+  font-weight: 400; 
+}
+
+body{
+  margin: 0;
+  overflow: hidden;
+  position: relative;
+  font-family: "Source Code Pro", Consolas, monaco, monospace;
+  font-size: 18px; 
+  line-height: 1.5; 
+  font-weight: 400; 
+  color: #7AC143;
+  background-color:  #eee;
+}
+
+#text {
+  font-size: 100px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
+  </style>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</head>
+
+<section id='grid'></section>
+<div id="text">blah bla hba</div>
+
+
+<script>
+
+  function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function visualize(numselected) {
+  var windowwidth = window.innerWidth;
+  var windowheight = window.innerHeight;
+  var ratio = windowheight / windowwidth;
+  var numdocs = 1678;
+  var windowarea = windowheight * windowwidth;
+  
+  var squareunit = Math.ceil(Math.sqrt(windowarea / numdocs));
+  var square = Math.sqrt(windowarea / numdocs);
+  var rectwidth = numdocs / windowwidth;
+  var rectheight = numdocs / windowheight;
+  var w = windowwidth;
+  var h = windowheight;
+  var color = getRandomColor();
+
+  // create subrectangle 
+  var createrect = Math.floor(Math.sqrt(numselected));
+  console.log(createrect);
+  var remainder = numselected - (createrect * createrect);
+  console.log(remainder)
+
+// create the svg
+var svg = d3.select('#grid').append('svg')
+  .attr({
+    width: w,
+    height: h
+  });
+
+// calculate number of rows and columns
+var squaresRow = Math.round(w / square);
+var squaresColumn = Math.round(h / square);
+
+// loop over number of columns
+for (var n = 0; n < squaresColumn; n++) {
+  // create each set of rows
+  var rows = svg.selectAll('rect' + ' .row-' + (n + 1))
+    .data(d3.range(squaresRow))
+    .enter().append('rect')
+    .attr({
+      class: function(d, i) {
+        return ((i <= createrect && n <= createrect) || (i <= remainder && n <= createrect + 1)) ? 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1) + ' selected' : 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1) + ' notselected';
+      },
+      id: function(d, i) {
+        return 's-' + (n + 1) + (i + 1);
+      },
+      width: square,
+      height: square,
+      x: function(d, i) {
+        return i * square;
+      },
+      y: n * square,
+      fill: function(d, i) {
+        return ((i <= createrect && n <= createrect) || (i <= remainder && n <= createrect + 1)) ? color : '#fff';
+      },
+      stroke: '#e0ebeb'
+    })
+    .on("mouseover", function(){
+      if (d3.select(this).classed('selected')) {
+      d3.select('#text').text(function () {
+        return numselected
+      })
+    }})
+}
+}
+
+
+function update(numselected) {
+  var windowwidth = window.innerWidth;
+  var windowheight = window.innerHeight;
+  var ratio = windowheight / windowwidth;
+  var numdocs = 1678;
+  var windowarea = windowheight * windowwidth;
+  
+  var squareunit = Math.ceil(Math.sqrt(windowarea / numdocs));
+  var square = Math.sqrt(windowarea / numdocs);
+  var rectwidth = numdocs / windowwidth;
+  var rectheight = numdocs / windowheight;
+  var w = windowwidth;
+  var h = windowheight;
+  var color = getRandomColor();
+
+  // create subrectangle 
+  var createrect = Math.floor(Math.sqrt(numselected));
+  console.log(createrect);
+  var remainder = numselected - (createrect * createrect);
+  console.log(remainder)
+
+// create the svg
+var svg = d3.select('svg')
+
+// calculate number of rows and columns
+var squaresRow = Math.round(w / square);
+var squaresColumn = Math.round(h / square);
+
+// loop over number of columns
+for (var n = 0; n < squaresColumn; n++) {
+  // create each set of rows
+  var rows = svg.selectAll('rect' + ' .row-' + (n + 1))
+    .data(d3.range(squaresRow))
+    .enter().append('rect')
+    .attr({
+      class: function(d, i) {
+        return ((i <= createrect && n <= createrect) || (i <= remainder && n <= createrect + 1)) ? 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1) + ' selected' : 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1) + ' notselected';
+      },
+      id: function(d, i) {
+        return 's-' + (n + 1) + (i + 1);
+      },
+      width: square,
+      height: square,
+      x: function(d, i) {
+        return i * square;
+      },
+      y: n * square,
+      fill: function(d, i) {
+        return ((i <= createrect && n <= createrect) || (i <= remainder && n <= createrect + 1)) ? color : '#fff';
+      },
+      stroke: '#e0ebeb'
+    })
+    .on("mouseover", function(){
+      if (d3.select(this).classed('selected')) {
+      d3.select('#text').text(function () {
+        return numselected
+      })
+    }})
+    .style("opacity", 0)
+      .transition()
+      .duration(500)
+      .style("opacity", 1)
+}
+
+}
+
+
+visualize(146);
+
+
+setInterval(function(){
+  var rando = Math.floor(Math.random() * 500);
+  update(rando);
+}, 2000)
+
+</script>
+
+</body>
+</html>
