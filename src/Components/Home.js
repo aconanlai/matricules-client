@@ -65,22 +65,35 @@ const Banner = styled.div`
   background-position: 50% 50%;
 `;
 
+const BackButton = styled.div`
+  z-index: 9999;
+  font-size: 2em;
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: 5px;
+`
+
 class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
       keywords: [],
       selectedKeyword: '',
+      keywordAnimating: false,
       docs: [],
       freq: 0,
       hovered: '',
       selectedNav: '',
       hideNav: false,
+      randomDoc: {},
     };
     this.selectKeyword = this.selectKeyword.bind(this);
     this.navToViz = this.navToViz.bind(this);
     this.handleNavMouseOver = this.handleNavMouseOver.bind(this);
     this.handleNavMouseOut = this.handleNavMouseOut.bind(this);
+    this.handleBack = this.handleBack.bind(this);
+    this.selectRandomDoc = this.selectRandomDoc.bind(this);
   }
 
   componentDidMount() {
@@ -88,11 +101,18 @@ class Home extends Component {
       return response.json();
     }).then((json) => {
       this.setState({ docs: json, keywords }
-      , () => { this.selectKeyword(); setInterval(this.selectKeyword, 2500); }
+      , () => { this.selectRandomDoc(); this.selectKeyword(); setInterval(this.selectKeyword, 5500); }
       );
     });
   }
 
+  selectRandomDoc() {
+    const rando = Math.floor((Math.random() * this.state.docs.length) + 1);
+    const selected = this.state.docs[rando];
+    this.setState({
+      randomDoc: selected,
+    });
+  }
     // fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=')
     //   .then((response) => {
     //     return response.json();
@@ -107,7 +127,7 @@ class Home extends Component {
     // }, () => setInterval(this.selectKeyword, 1000));
 
   selectKeyword() {
-    const rando = Math.floor(Math.random() * this.state.keywords.length + 1);
+    const rando = Math.floor((Math.random() * this.state.keywords.length) + 1);
     const selected = this.state.keywords[rando].french;
     const freq = this.state.docs.filter((doc) => doc.keywords.includes(selected)).length;
     this.setState({
@@ -138,6 +158,13 @@ class Home extends Component {
     }
   }
 
+  handleBack() {
+    this.setState({
+      hideNav: false,
+      hovered: '',
+    });
+  }
+
   render() {
     let background;
     switch (this.state.hovered) {
@@ -154,8 +181,11 @@ class Home extends Component {
         background = <BackgroundImg />;
     }
 
+    const backbutton = (this.state.hideNav === true) ? <BackButton onClick={this.handleBack}>BACK</BackButton> : null;
+
     return (
       <div>
+        {backbutton}
         <Background>
           {background}
         </Background>

@@ -143,12 +143,10 @@ const MyReactClass = React.createClass({
             })
           }
         })
-        .style("opacity", 0)
-        .transition()
-        .duration(700)
-        .style("opacity", 1)
-
-      this.animateFauxDOM(700);
+        // .style("opacity", 0)
+        // .transition()
+        // .duration(700)
+        // .style("opacity", 1)
     }
   },
 
@@ -215,20 +213,24 @@ const MyReactClass = React.createClass({
   },
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.freq !== this.props.freq) {
+    if (nextProps.freq !== this.props.freq && this.mounted === true) {
       this.getRandomColor();
-      this.setState({
-        keywordChanging: true,
-      });
+      // this.setState({
+      //   keywordChanging: true,
+      // });
     }
   },
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.freq !== this.props.freq) {
       this.animate();
-      setTimeout(() => this.setState({
-        keywordChanging: false,
-      }), 2000);
+      // setTimeout(() => {
+      //   if (this.mounted === true) {
+      //     this.setState({
+      //       keywordChanging: false,
+      //     });
+      //   }
+      // }, 5000);
     }
   },
 
