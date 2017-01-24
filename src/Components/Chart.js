@@ -21,14 +21,38 @@ const Keyword = styled.span`
   padding: 5px;
 
   &.nah {
-    -webkit-animation: ${fadeIn} 1s;
-    animation: ${fadeIn} 1s;
+    -webkit-animation: ${fadeIn} 1.5s;
+    animation: ${fadeIn} 1.5s;
   }
 
   &.changing {
     -webkit-animation: ${fadeOut} 1s;
     animation: ${fadeOut} 1s;
   }
+`;
+
+const KeywordList = styled.ul`
+  height: calc(100% - 150px);
+  display: flex;
+  flex-direction: column-reverse;
+  flex-wrap: wrap-reverse;
+  list-style: none;
+  font-size: 1.42em;
+  position: absolute;
+  top: 0;
+  right: 50px;
+  transition: opacity 1s;
+
+  &.hide {
+    pointer-events: none;
+    opacity: 0;
+    z-index: -999;
+  }
+`;
+
+const KeywordListItem = styled.li`
+  text-align: right;
+  width: 250px;
 `;
 
 const MyReactClass = React.createClass({
@@ -121,10 +145,10 @@ const MyReactClass = React.createClass({
         })
         .style("opacity", 0)
         .transition()
-        .duration(1000)
+        .duration(700)
         .style("opacity", 1)
 
-      this.animateFauxDOM(1000);
+      this.animateFauxDOM(700);
     }
   },
 
@@ -202,9 +226,9 @@ const MyReactClass = React.createClass({
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.freq !== this.props.freq) {
       this.animate();
-      // this.setState({
-      //   keywordChanging: false,
-      // });
+      setTimeout(() => this.setState({
+        keywordChanging: false,
+      }), 2000);
     }
   },
 
@@ -218,6 +242,13 @@ const MyReactClass = React.createClass({
         <div className='renderedD3'>
           {this.state.chart}
         </div>
+        <KeywordList className={(this.props.hideNav === false) ? 'hide' : 'nah'}>
+          {this.props.keywords.map(keyword => {
+            return (
+              <KeywordListItem>{keyword.french}</KeywordListItem>
+            );
+          })}
+        </KeywordList>
         <Keyword className={(this.state.keywordChanging === true) ? 'nah' : 'changing'} style={{ color: this.state.color }}>{this.props.selectedKeyword}</Keyword>
       </div>
     )

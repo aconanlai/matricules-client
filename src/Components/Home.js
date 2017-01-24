@@ -21,6 +21,13 @@ const Wrapper = styled.section`
   padding: 4em;
   text-align: center;
   z-index: 999;
+  transition: opacity 1s;
+
+  &.hide {
+    pointer-events: none;
+    opacity: 0;
+    z-index: -999;
+  }
 `;
 
 const Background = styled.div`
@@ -30,7 +37,7 @@ const Background = styled.div`
   left: 0;
   height: 100%;
   width: 100%;
-  z-index: -9;
+  z-index: -1;
 `;
 
 const Stats = styled.div`
@@ -38,9 +45,10 @@ const Stats = styled.div`
   font-size: 3em;
 `;
 
-const Link = styled.a`
+const Link = styled.span`
   text-decoration: underline;
   color: #00b9db;
+  cursor: crosshair;
 
   &.hovered {
     background: black;
@@ -66,8 +74,13 @@ class Home extends Component {
       docs: [],
       freq: 0,
       hovered: '',
+      selectedNav: '',
+      hideNav: false,
     };
     this.selectKeyword = this.selectKeyword.bind(this);
+    this.navToViz = this.navToViz.bind(this);
+    this.handleNavMouseOver = this.handleNavMouseOver.bind(this);
+    this.handleNavMouseOut = this.handleNavMouseOut.bind(this);
   }
 
   componentDidMount() {
@@ -75,10 +88,11 @@ class Home extends Component {
       return response.json();
     }).then((json) => {
       this.setState({ docs: json, keywords }
-      , () => { this.selectKeyword(); setInterval(this.selectKeyword, 2000); }
+      , () => { this.selectKeyword(); setInterval(this.selectKeyword, 2500); }
       );
     });
   }
+
     // fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=')
     //   .then((response) => {
     //     return response.json();
@@ -102,6 +116,28 @@ class Home extends Component {
     });
   }
 
+  navToViz() {
+    this.setState({
+      hideNav: true,
+    });
+  }
+
+  handleNavMouseOver(component) {
+    if (this.state.hideNav === false) {
+      this.setState({
+        hovered: component,
+      });
+    }
+  }
+
+  handleNavMouseOut(component) {
+    if (this.state.hideNav === false) {
+      this.setState({
+        hovered: '',
+      });
+    }
+  }
+
   render() {
     let background;
     switch (this.state.hovered) {
@@ -112,7 +148,7 @@ class Home extends Component {
         background = <Banner />;
         break;
       case 'keywords':
-        background = <Chart selectedKeyword={this.state.selectedKeyword} freq={this.state.freq} />;
+        background = <Chart selectedKeyword={this.state.selectedKeyword} freq={this.state.freq} keywords={this.state.keywords} hideNav={this.state.hideNav} />;
         break;
       default:
         background = <BackgroundImg />;
@@ -123,20 +159,28 @@ class Home extends Component {
         <Background>
           {background}
         </Background>
-        <Wrapper>
+        <Wrapper className={(this.state.hideNav === true) ? 'hide' : 'nah'}>
           <img src={logo} />
           <Title>MATRICULES</Title>
           <Stats>
             <p>
-              Matricules is an online digital archive comprised of a dynamic database housing all of the images, artists and events that making up&nbsp;
-              <Link className={(this.state.hovered === 'studio') ? 'hovered' : 'none'} onMouseOver={() => this.setState({ hovered: 'studio' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="http://www.studioxx.org">Studio XX</Link>'s remarkable history.
+              Matricules is an online digital archive comprised of a dynamic database housing all of the images, artists and events that make up&nbsp;
+              <Link 
+                onClick={this.navToViz}
+                className={(this.state.hovered === 'studio') ? 'hovered' : 'none'}
+                onMouseOver={() => this.handleNavMouseOver('studio')} onMouseOut={this.handleNavMouseOut}
+              >Studio XX</Link>'s remarkable history.
              </p>
              <p>
               Explore&nbsp;
-              <Link onMouseOver={() => this.setState({ hovered: 'years' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="">20 years</Link> of media, including&nbsp;
-              <Link onMouseOver={() => this.setState({ hovered: 'docs' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="">1705 documents</Link>,&nbsp;
-              <Link onMouseOver={() => this.setState({ hovered: 'keywords' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="">123 keywords</Link>, and&nbsp;
-              <Link onMouseOver={() => this.setState({ hovered: 'artists' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="">378 artists</Link>.
+              <Link onMouseOver={() => this.setState({ hovered: 'years' })} onMouseOut={() => this.setState({ hovered: '' })}>20 years</Link> of media, including&nbsp;
+              <Link onMouseOver={() => this.setState({ hovered: 'docs' })} onMouseOut={() => this.setState({ hovered: '' })}>1705 documents</Link>,&nbsp;
+              <Link
+                onClick={this.navToViz}
+                className={(this.state.hovered === 'keywords') ? 'hovered' : 'none'}
+                onMouseOver={() => this.handleNavMouseOver('keywords')} onMouseOut={this.handleNavMouseOut}
+              >123 keywords</Link>, and&nbsp;
+              <Link onMouseOver={() => this.setState({ hovered: 'artists' })} onMouseOut={() => this.setState({ hovered: '' })}>378 artists</Link>.
              </p>
           </Stats>
         </Wrapper>
