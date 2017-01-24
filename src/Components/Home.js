@@ -28,6 +28,12 @@ const Background = styled.div`
   z-index: -9;
 `;
 
+const Stats = styled.div`
+  float: right;
+  text-align: right;
+  font-size: 4em;
+`;
+
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -44,7 +50,9 @@ class Home extends Component {
     fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=').then((response) => {
       return response.json();
     }).then((json) => {
-      this.setState({ docs: json, keywords }, () => { this.selectKeyword(); setInterval(this.selectKeyword, 10000); });
+      this.setState({ docs: json, keywords }
+      // , () => { this.selectKeyword(); setInterval(this.selectKeyword, 10000); }
+      );
     });
   }
     // fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=')
@@ -80,10 +88,12 @@ class Home extends Component {
         <Wrapper>
           <img src={logo} />
           <Title>MATRICULES</Title>
+          <Stats>
+            <h1>1700 documents</h1>
+            <h1>148 keywords</h1>
+            <h1>305 artists</h1>
+          </Stats>
         </Wrapper>
-        <Background>
-          <Chart />
-        </Background>
       </div>
     );
   }
