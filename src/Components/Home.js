@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Chart from './Chart2';
+import Chart from './Chart';
+import BackgroundImg from './BackgroundImg';
 import keywords from './keywords.json';
 import logo from './logo.png';
+import banner from './banner.jpg';
 
 const Title = styled.h1`
   font-size: 1.5em;
@@ -14,12 +16,15 @@ const Title = styled.h1`
 `;
 
 const Wrapper = styled.section`
+  max-width: 1000px;
+  margin: 0 auto;
   padding: 4em;
   text-align: center;
   z-index: 999;
 `;
 
 const Background = styled.div`
+  background: #f6f7f7;
   position: fixed;
   top: 0;
   left: 0;
@@ -29,9 +34,27 @@ const Background = styled.div`
 `;
 
 const Stats = styled.div`
-  float: right;
   text-align: right;
-  font-size: 4em;
+  font-size: 3em;
+`;
+
+const Link = styled.a`
+  text-decoration: underline;
+  color: #00b9db;
+
+  &.hovered {
+    background: black;
+    transition: 0.25s;
+  }
+`;
+
+const Banner = styled.div`
+  width: 100%;
+  height: 100%;
+  background-image: url('${banner}');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
 `;
 
 class Home extends Component {
@@ -42,6 +65,7 @@ class Home extends Component {
       selectedKeyword: '',
       docs: [],
       freq: 0,
+      hovered: '',
     };
     this.selectKeyword = this.selectKeyword.bind(this);
   }
@@ -51,7 +75,7 @@ class Home extends Component {
       return response.json();
     }).then((json) => {
       this.setState({ docs: json, keywords }
-      // , () => { this.selectKeyword(); setInterval(this.selectKeyword, 10000); }
+      , () => { this.selectKeyword(); setInterval(this.selectKeyword, 2000); }
       );
     });
   }
@@ -70,28 +94,50 @@ class Home extends Component {
 
   selectKeyword() {
     const rando = Math.floor(Math.random() * this.state.keywords.length + 1);
-    const selected = this.state.keywords[rando].english;
-    console.log(selected);
+    const selected = this.state.keywords[rando].french;
     const freq = this.state.docs.filter((doc) => doc.keywords.includes(selected)).length;
-    console.log(freq);
-    // const freq = this.state.docs.reduce((total, doc) => { if (doc.keywords.includes(selected)) { total += 1; } });
-    // console.log(freq)
     this.setState({
       selectedKeyword: selected,
-      // freq,
+      freq,
     });
   }
 
   render() {
+    let background;
+    switch (this.state.hovered) {
+      case '':
+        background = <BackgroundImg />;
+        break;
+      case 'studio':
+        background = <Banner />;
+        break;
+      case 'keywords':
+        background = <Chart selectedKeyword={this.state.selectedKeyword} freq={this.state.freq} />;
+        break;
+      default:
+        background = <BackgroundImg />;
+    }
+
     return (
       <div>
+        <Background>
+          {background}
+        </Background>
         <Wrapper>
           <img src={logo} />
           <Title>MATRICULES</Title>
           <Stats>
-            <h1>1700 documents</h1>
-            <h1>148 keywords</h1>
-            <h1>305 artists</h1>
+            <p>
+              Matricules is an online digital archive comprised of a dynamic database housing all of the images, artists and events that making up&nbsp;
+              <Link className={(this.state.hovered === 'studio') ? 'hovered' : 'none'} onMouseOver={() => this.setState({ hovered: 'studio' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="http://www.studioxx.org">Studio XX</Link>'s remarkable history.
+             </p>
+             <p>
+              Explore&nbsp;
+              <Link onMouseOver={() => this.setState({ hovered: 'years' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="">20 years</Link> of media, including&nbsp;
+              <Link onMouseOver={() => this.setState({ hovered: 'docs' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="">1705 documents</Link>,&nbsp;
+              <Link onMouseOver={() => this.setState({ hovered: 'keywords' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="">123 keywords</Link>, and&nbsp;
+              <Link onMouseOver={() => this.setState({ hovered: 'artists' })} onMouseOut={() => this.setState({ hovered: '' })} target="blank" href="">378 artists</Link>.
+             </p>
           </Stats>
         </Wrapper>
       </div>

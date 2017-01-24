@@ -1,30 +1,140 @@
 import React from 'react';
 import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
+import styled, { keyframes } from 'styled-components';
 
-class Chart extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      mouseOver: false,
-      chart: 'loading',
-    };
+const fadeIn = keyframes`
+  0%   {opacity: 0;}  
+  100% {opacity: 1;}
+`;
+
+const fadeOut = keyframes`
+  0%   {opacity: 1;}  
+  100% {opacity: 0;}
+`;
+
+const Keyword = styled.span`
+  font-size: 6em;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 5px;
+
+  &.nah {
+    -webkit-animation: ${fadeIn} 1s;
+    animation: ${fadeIn} 1s;
   }
+
+  &.changing {
+    -webkit-animation: ${fadeOut} 1s;
+    animation: ${fadeOut} 1s;
+  }
+`;
+
+const MyReactClass = React.createClass({
+  mixins: [
+    ReactFauxDOM.mixins.core,
+    ReactFauxDOM.mixins.anim
+  ],
+
+  getInitialState() {
+    return {
+      mounted: false,
+      mouseOver: false,
+      chart: '',
+      color: '',
+      keywordChanging: false,
+    };
+  },
+
+  getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i += 1) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    if (this.mounted === true) {
+      this.setState({
+        color,
+      });
+    }
+    
+  },
+
+  animate() {
+    const numselected = this.props.freq;
+    var color = this.state.color;
+    var windowwidth = window.innerWidth;
+    var windowheight = window.innerHeight;
+    var ratio = windowheight / windowwidth;
+    var numdocs = 1678;
+    var windowarea = windowheight * windowwidth;
+
+    var squareunit = Math.ceil(Math.sqrt(windowarea / numdocs));
+    var square = Math.sqrt(windowarea / numdocs);
+    var rectwidth = numdocs / windowwidth;
+    var rectheight = numdocs / windowheight;
+    var w = windowwidth;
+    var h = windowheight;
+
+    // create subrectangle 
+    var createrect = Math.floor(Math.sqrt(numselected));
+    var remainder = numselected - (createrect * createrect);
+
+    // create the svg
+    var svg = d3.select('svg')
+
+    // calculate number of rows and columns
+    var squaresRow = Math.round(w / square);
+    var squaresColumn = Math.round(h / square);
+
+    // loop over number of columns
+    for (var n = 0; n < squaresColumn; n++) {
+      // create each set of rows
+      var rows = svg.selectAll('rect' + ' .row-' + (n + 1))
+        .data(d3.range(squaresRow))
+        .enter().append('rect')
+        .attr({
+          class: function (d, i) {
+            return ((i <= createrect && n <= createrect) || (i <= remainder && n <= createrect + 1)) ? 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1) + ' selected' : 'square row-' + (n + 1) + ' ' + 'col-' + (i + 1) + ' notselected';
+          },
+          id: function (d, i) {
+            return 's-' + (n + 1) + (i + 1);
+          },
+          width: square,
+          height: square,
+          x: function (d, i) {
+            return i * square;
+          },
+          y: n * square,
+          fill: function (d, i) {
+            return ((i <= createrect && n <= createrect) || (i <= remainder && n <= createrect + 1)) ? color : '#fff';
+          },
+          stroke: '#e0ebeb'
+        })
+        .on("mouseover", function () {
+          if (d3.select(this).classed('selected')) {
+            d3.select('#text').text(function () {
+              return numselected
+            })
+          }
+        })
+        .style("opacity", 0)
+        .transition()
+        .duration(1000)
+        .style("opacity", 1)
+
+      this.animateFauxDOM(1000);
+    }
+  },
+
+  componentWillMount() {
+    this.mounted = true;
+    this.getRandomColor();
+  },
 
   componentDidMount() {
-
-  }
-
-  render() {
-    function getRandomColor() {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      for (let i = 0; i < 6; i += 1) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
-
+    this.faux = this.connectFauxDOM('div.renderedD3', 'chart')
     const windowwidth = window.innerWidth;
     const windowheight = window.innerHeight;
     const numdocs = 1678;
@@ -32,13 +142,12 @@ class Chart extends React.Component {
     const square = Math.sqrt(windowarea / numdocs);
     const w = windowwidth;
     const h = windowheight;
-    const color = getRandomColor();
-    const numselected = 154;
+    const color = this.state.color;
+    const numselected = this.props.freq;
     // create subrectangle
     const createrect = Math.floor(Math.sqrt(numselected));
     const remainder = numselected - (createrect * createrect);
 
-    this.faux = ReactFauxDOM.createElement('div');
     const svg = d3.select(this.faux).append('svg')
       .attr({
         width: w,
@@ -72,22 +181,47 @@ class Chart extends React.Component {
             return ((i <= createrect && n <= createrect) || (i <= remainder && n <= createrect + 1)) ? color : '#fff';
           },
           stroke: '#e0ebeb'
-        });
-        // .on("mouseover", () => {
-        //   if (d3.select(this).classed('selected')) {
-        //     d3.select('#text').text(function () {
-        //       return numselected
-        //     })
-        //   }
-        // });
+        })
     }
+    // setInterval(() => {
+    //   this.getRandomColor();
+    //   var rando = Math.floor(Math.random() * 500);
+    //   this.animate(rando);
+    // }, 3000)
+  },
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.freq !== this.props.freq) {
+      this.getRandomColor();
+      this.setState({
+        keywordChanging: true,
+      });
+    }
+  },
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.freq !== this.props.freq) {
+      this.animate();
+      // this.setState({
+      //   keywordChanging: false,
+      // });
+    }
+  },
+
+  componentWillUnmount() {
+    this.mounted = false;
+  },
+
+  render() {
     return (
-      <div className="chart">
-        {this.faux.toReact()}
+      <div>
+        <div className='renderedD3'>
+          {this.state.chart}
+        </div>
+        <Keyword className={(this.state.keywordChanging === true) ? 'nah' : 'changing'} style={{ color: this.state.color }}>{this.props.selectedKeyword}</Keyword>
       </div>
-    );
+    )
   }
-}
+})
 
-export default Chart;
+export default MyReactClass
