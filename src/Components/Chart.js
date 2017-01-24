@@ -72,7 +72,7 @@ class Chart extends React.Component {
             return ((i <= createrect && n <= createrect) || (i <= remainder && n <= createrect + 1)) ? color : '#fff';
           },
           stroke: '#e0ebeb'
-        })
+        });
         // .on("mouseover", () => {
         //   if (d3.select(this).classed('selected')) {
         //     d3.select('#text').text(function () {
