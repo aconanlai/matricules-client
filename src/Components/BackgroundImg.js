@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled, { keyframes } from 'styled-components';
-import floppydisk from './floppy.png';
+import floppydisk from '../Assets/floppy.png';
 
 const spinX = keyframes`
   0%   {transform: rotate(0deg);}  

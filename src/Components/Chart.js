@@ -25,10 +25,10 @@ const Keyword = styled.span`
     animation: ${fadeIn} 1.5s;
   }
 
-  &.changing {
-    -webkit-animation: ${fadeOut} 1s;
-    animation: ${fadeOut} 1s;
-  }
+  // &.changing {
+  //   -webkit-animation: ${fadeOut} 1s;
+  //   animation: ${fadeOut} 1s;
+  // }
 `;
 
 const KeywordList = styled.ul`

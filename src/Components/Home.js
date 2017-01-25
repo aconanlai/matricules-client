@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import Chart from './Chart';
+import ThreeDee from './ThreeDee/ThreeDee';
 import BackgroundImg from './BackgroundImg';
+import TotalRandomDoc from './HomePageDocs/TotalRandomDoc';
+import HistoryDoc from './HomePageDocs/HistoryDoc';
 import keywords from './keywords.json';
-import logo from './logo.png';
-import banner from './banner.jpg';
+import logo from '../Assets/logo.png';
+import banner from '../Assets/banner.jpg';
 
 const Title = styled.h1`
   font-size: 1.5em;
@@ -28,6 +31,27 @@ const Wrapper = styled.section`
     opacity: 0;
     z-index: -999;
   }
+`;
+
+const Lander = styled.div`
+  width: 100%;
+  height: 100vh;
+  text-align: center;
+`;
+
+const About = styled.div`
+  width: 100%;
+  height: 100vh;
+  background: pink;
+`;
+
+const RandomDocs = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background-color: #013A6B;
+  background-image: -webkit-linear-gradient(30deg, #013A6B 50%, #004E95 50%);
+  overflow: hidden;
 `;
 
 const Background = styled.div`
@@ -72,7 +96,23 @@ const BackButton = styled.div`
   top: 0;
   right: 0;
   padding: 5px;
-`
+`;
+
+const TotalRandomDocWrapper = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 50%;
+  bottom: 0px;
+  left: 0px;
+`;
+
+const HistoryDocWrapper = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 50%;
+  top: 0px;
+  right: 0px;
+`;
 
 class Home extends Component {
   constructor(props) {
@@ -87,6 +127,7 @@ class Home extends Component {
       selectedNav: '',
       hideNav: false,
       randomDoc: {},
+      historyDoc: {},
     };
     this.selectKeyword = this.selectKeyword.bind(this);
     this.navToViz = this.navToViz.bind(this);
@@ -94,6 +135,7 @@ class Home extends Component {
     this.handleNavMouseOut = this.handleNavMouseOut.bind(this);
     this.handleBack = this.handleBack.bind(this);
     this.selectRandomDoc = this.selectRandomDoc.bind(this);
+    this.selectHistoryDoc = this.selectHistoryDoc.bind(this);
   }
 
   componentDidMount() {
@@ -101,7 +143,9 @@ class Home extends Component {
       return response.json();
     }).then((json) => {
       this.setState({ docs: json, keywords }
-      , () => { this.selectRandomDoc(); this.selectKeyword(); setInterval(this.selectKeyword, 5500); }
+      , () => { this.selectRandomDoc(); this.selectHistoryDoc(); this.selectKeyword();
+        // setInterval(this.selectKeyword, 5500);
+      },
       );
     });
   }
@@ -111,6 +155,24 @@ class Home extends Component {
     const selected = this.state.docs[rando];
     this.setState({
       randomDoc: selected,
+    });
+  }
+
+  selectHistoryDoc() {
+    const date = new Date();
+    let month = date.getUTCMonth();
+    month = (month + 1).toString();
+    if (month.length === 1) {
+      month = '0' + month;
+    }
+    const eligibledocs = this.state.docs.filter(doc => {
+      return doc.date.slice(5, 7) === month;
+    });
+
+    const rando = Math.floor((Math.random() * eligibledocs.length) + 1);
+    const selected = eligibledocs[rando];
+    this.setState({
+      historyDoc: selected,
     });
   }
     // fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=')
@@ -177,6 +239,9 @@ class Home extends Component {
       case 'keywords':
         background = <Chart selectedKeyword={this.state.selectedKeyword} freq={this.state.freq} keywords={this.state.keywords} hideNav={this.state.hideNav} />;
         break;
+      case 'docs':
+        background = <ThreeDee />;
+        break;
       default:
         background = <BackgroundImg />;
     }
@@ -189,31 +254,61 @@ class Home extends Component {
         <Background>
           {background}
         </Background>
-        <Wrapper className={(this.state.hideNav === true) ? 'hide' : 'nah'}>
-          <img src={logo} />
-          <Title>MATRICULES</Title>
-          <Stats>
-            <p>
-              Matricules is an online digital archive comprised of a dynamic database housing all of the images, artists and events that make up&nbsp;
-              <Link 
-                onClick={this.navToViz}
-                className={(this.state.hovered === 'studio') ? 'hovered' : 'none'}
-                onMouseOver={() => this.handleNavMouseOver('studio')} onMouseOut={this.handleNavMouseOut}
-              >Studio XX</Link>'s remarkable history.
-             </p>
-             <p>
-              Explore&nbsp;
-              <Link onMouseOver={() => this.setState({ hovered: 'years' })} onMouseOut={() => this.setState({ hovered: '' })}>20 years</Link> of media, including&nbsp;
-              <Link onMouseOver={() => this.setState({ hovered: 'docs' })} onMouseOut={() => this.setState({ hovered: '' })}>1705 documents</Link>,&nbsp;
-              <Link
-                onClick={this.navToViz}
-                className={(this.state.hovered === 'keywords') ? 'hovered' : 'none'}
-                onMouseOver={() => this.handleNavMouseOver('keywords')} onMouseOut={this.handleNavMouseOut}
-              >123 keywords</Link>, and&nbsp;
-              <Link onMouseOver={() => this.setState({ hovered: 'artists' })} onMouseOut={() => this.setState({ hovered: '' })}>378 artists</Link>.
-             </p>
-          </Stats>
-        </Wrapper>
+        <Lander>
+          <Wrapper className={(this.state.hideNav === true) ? 'hide' : 'nah'}>
+            <img src={logo} />
+            <Title>MATRICULES</Title>
+            <Stats>
+              <p>
+                Matricules is an online digital archive comprised of a dynamic database housing all of the images, artists and events that make up&nbsp;
+                <Link 
+                  onClick={this.navToViz}
+                  className={(this.state.hovered === 'studio') ? 'hovered' : 'none'}
+                  onMouseOver={() => this.handleNavMouseOver('studio')}
+                  onMouseOut={this.handleNavMouseOut}
+                >Studio XX</Link>'s remarkable history.
+              </p>
+              <p>
+                Explore&nbsp;
+                <Link
+                  className={(this.state.hovered === 'years') ? 'hovered' : 'none'}
+                  onClick={this.navToViz}
+                  onMouseOver={() => this.handleNavMouseOver('years')}
+                  onMouseOut={this.handleNavMouseOut}
+                >20 years</Link> of media, including&nbsp;
+                <Link
+                  className={(this.state.hovered === 'docs') ? 'hovered' : 'none'}
+                  onClick={this.navToViz}
+                  onMouseOver={() => this.handleNavMouseOver('docs')}
+                  onMouseOut={this.handleNavMouseOut}
+                >1705 documents</Link>,&nbsp;
+                <Link
+                  onClick={this.navToViz}
+                  className={(this.state.hovered === 'keywords') ? 'hovered' : 'none'}
+                  onMouseOver={() => this.handleNavMouseOver('keywords')}
+                  onMouseOut={this.handleNavMouseOut}
+                >123 keywords</Link>, and&nbsp;
+                <Link
+                  onClick={this.navToViz}
+                  className={(this.state.hovered === 'artists') ? 'hovered' : 'none'}
+                  onMouseOver={() => this.handleNavMouseOver('artists')}
+                  onMouseOut={this.handleNavMouseOut}
+                >378 artists</Link>.
+              </p>
+            </Stats>
+          </Wrapper>
+        </Lander>
+        <About>
+         henlo
+        </About>
+        <RandomDocs>
+          <TotalRandomDocWrapper>
+            <TotalRandomDoc doc={this.state.randomDoc} />
+          </TotalRandomDocWrapper>
+          <HistoryDocWrapper>
+            <HistoryDoc doc={this.state.historyDoc} />
+          </HistoryDocWrapper>
+        </RandomDocs>
       </div>
     );
   }
