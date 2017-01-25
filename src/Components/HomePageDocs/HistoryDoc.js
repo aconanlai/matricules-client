@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import floppydisk from '../../Assets/floppy.png';
 import camera from '../../Assets/camera.png';
+import audio from '../../Assets/audio.png';
 import video from '../../Assets/video.png';
 import doc from '../../Assets/doc.png';
 
@@ -76,20 +77,23 @@ class HistoryDoc extends Component {
             })) : null;
     let bg;
     switch (this.props.doc.medium) {
-      case 'Electronic Print':
+      case 'Electronic print':
         bg = doc;
         break;
       case 'Audio/visual':
         bg = video;
         break;
       case 'Audio':
-        bg = floppydisk;
+        bg = audio;
         break;
-      case 'Electronic File':
+      case 'Electronic file':
         bg = camera;
         break;
-      default:
+      case 'Paper print':
         bg = doc;
+        break;
+      default:
+        bg = floppydisk;
     }
     return (
       <div style={{ width: '100%', height: '100%' }}>

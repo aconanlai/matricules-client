@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Chart from './Chart';
+import Chart from './KeywordsGrid/Chart';
+import ArtistsCircle from './ArtistsCircle/ArtistsCircle';
 import ThreeDee from './ThreeDee/ThreeDee';
 import BackgroundImg from './BackgroundImg';
 import TotalRandomDoc from './HomePageDocs/TotalRandomDoc';
@@ -61,7 +62,6 @@ const Background = styled.div`
   left: 0;
   height: 100%;
   width: 100%;
-  z-index: -1;
 `;
 
 const Stats = styled.div`
@@ -128,6 +128,7 @@ class Home extends Component {
       hideNav: false,
       randomDoc: {},
       historyDoc: {},
+      artistsArray: [],
     };
     this.selectKeyword = this.selectKeyword.bind(this);
     this.navToViz = this.navToViz.bind(this);
@@ -136,14 +137,15 @@ class Home extends Component {
     this.handleBack = this.handleBack.bind(this);
     this.selectRandomDoc = this.selectRandomDoc.bind(this);
     this.selectHistoryDoc = this.selectHistoryDoc.bind(this);
+    this.constructArtistsArray = this.constructArtistsArray.bind(this);
   }
 
   componentDidMount() {
-    fetch('http://localhost:4000/api/documents?year=all&searchterm=&keyword=').then((response) => {
+    fetch('http://matricules.nfshost.com/api/documents?year=all&keyword=&searchterm=').then((response) => {
       return response.json();
     }).then((json) => {
       this.setState({ docs: json, keywords }
-      , () => { this.selectRandomDoc(); this.selectHistoryDoc(); this.selectKeyword();
+      , () => { this.selectRandomDoc(); this.selectHistoryDoc(); this.selectKeyword(); this.constructArtistsArray();
         // setInterval(this.selectKeyword, 5500);
       },
       );
@@ -227,6 +229,44 @@ class Home extends Component {
     });
   }
 
+  constructArtistsArray() {
+    const data = this.state.docs;
+    const removeByIndex = (array, index) => {
+      return array.filter(function (el, i) {
+        return index !== i;
+      });
+    };
+    var artistsArray = {};
+    // loop all documents
+    for (var i = 0; i < data.length; i += 1) {
+      // loop all keywords
+      for (var j = 0; j < data[i].artists.length; j += 1) {
+        var artist = data[i].artists[j]
+        // increment counter
+        if (artistsArray[artist] === undefined) {
+          artistsArray[artist] = {"name": artist, "freq": 1, "imports": []};
+        } else {
+          artistsArray[artist].freq = artistsArray[artist].freq += 1;
+        }
+        // populate co-occurance array
+        var otherartists = removeByIndex(data[i].artists, j)
+        for (var k = 0; k < otherartists.length; k += 1) {
+          if (artistsArray[artist].imports.indexOf(otherartists[k]) < 0) {
+            artistsArray[artist].imports.push(otherartists[k])
+          }
+        }
+      }
+    }
+    console.log(artistsArray);
+    var convertedArray = [];
+    for (var key in artistsArray) {
+      convertedArray.push(artistsArray[key]);
+    }
+    this.setState({
+      artistsArray: convertedArray,
+    });
+  }
+
   render() {
     let background;
     switch (this.state.hovered) {
@@ -242,6 +282,9 @@ class Home extends Component {
       case 'docs':
         background = <ThreeDee />;
         break;
+      case 'artists':
+        background = <ArtistsCircle artistsArray={this.state.artistsArray} />;
+        break;
       default:
         background = <BackgroundImg />;
     }
@@ -251,7 +294,7 @@ class Home extends Component {
     return (
       <div>
         {backbutton}
-        <Background>
+        <Background style={{ zIndex: (this.state.hideNav === true) ? 99 : -1 }} >
           {background}
         </Background>
         <Lander>

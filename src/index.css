@@ -4,20 +4,50 @@ body {
   font-family: sans-serif;
 }
 
-.example-enter {
-  opacity: 0.01;
+#circlechart {
+  text-align: center;
 }
 
-.example-enter.example-enter-active {
-  opacity: 1;
-  transition: opacity 500ms ease-in;
+.node {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #bbb;
 }
 
-.example-leave {
-  opacity: 1;
+.node:hover {
+  fill: #000;
 }
 
-.example-leave.example-leave-active {
-  opacity: 0.01;
-  transition: opacity 300ms ease-in;
+.link {
+  stroke: #96efff;
+  stroke-opacity: .4;
+  fill: none;
+  pointer-events: none;
+}
+
+.node:hover,
+.node--source,
+.node--target {
+  font-weight: 700;
+}
+
+.node--source {
+  fill: #17d8fb;
+}
+
+.node--target {
+  fill: #17d8fb;
+}
+
+.link--source,
+.link--target {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+}
+
+.link--source {
+  stroke: #17d8fb;
+}
+
+.link--target {
+  stroke: #17d8fb;
 }
