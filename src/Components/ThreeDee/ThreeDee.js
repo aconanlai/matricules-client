@@ -4,18 +4,34 @@ import * as THREE from 'three';
 require('./lib.js');
 
 class Simple extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      videocolor: '#00ccff',
+      photocolor: '#3333cc',
+      textcolor: '#99cc00',
+      audiocolor: '#993399',
+      printcolor: '#ff33cc',
+    };
+  }
 
   componentDidMount() {
-    var container;
-    var camera, scene, renderer;
+    const videocolor = this.state.videocolor;
+    const photocolor = this.state.photocolor;
+    const textcolor = this.state.textcolor;
+    const audiocolor = this.state.audiocolor;
+    const printcolor = this.state.printcolor;
+    let container;
+    let camera;
+    let scene;
+    let renderer;
 
-    var raycaster;
-    var mouse;
+    let raycaster;
+    let mouse;
 
-    var PI2 = Math.PI * 2;
+    const PI2 = Math.PI * 2;
 
-    var programFill = function (ctx) {
-
+    const programFill = (ctx) => {
       ctx.lineWidth = 0.025;
       ctx.beginPath();
       ctx.moveTo(0, 0);
@@ -27,11 +43,9 @@ class Simple extends React.Component {
       ctx.lineTo(0, 0);
       ctx.stroke();
       ctx.fill();
-
     };
 
-    var programStroke = function (ctx) {
-
+    const programStroke = (ctx) => {
       ctx.lineWidth = 0.025;
       ctx.beginPath();
       ctx.moveTo(0, 0);
@@ -42,15 +56,34 @@ class Simple extends React.Component {
       ctx.lineTo(1.35, 0);
       ctx.lineTo(0, 0);
       ctx.stroke();
-
     };
 
-    var INTERSECTED;
+    let INTERSECTED;
 
     init();
     animate();
+    function addMedia(number, color, media) {
+      for (var i = 0; i < number; i++) {
+        const particle = new THREE.Sprite(new THREE.SpriteCanvasMaterial({ color: color, program: programStroke }));
+        particle.position.x = Math.random() * 500 - 200;
+        particle.position.y = Math.random() * 400 - 200;
+        particle.position.z = Math.random() * 1800 - 700;
+        particle.scale.x = particle.scale.y = Math.random() * 5 + 10;
+        particle.media = media;
+        scene.add(particle);
+      }
+    }
 
     function init() {
+
+      // process data object
+      const data = {
+        video: 400,
+        photo: 600,
+        text: 200,
+        audio: 200,
+        print: 300,
+      };
 
       container = document.getElementById('threecontainer');
 
@@ -58,17 +91,11 @@ class Simple extends React.Component {
       camera.position.set(0, 300, 500);
 
       scene = new THREE.Scene();
-
-      for (var i = 0; i < 1700; i++) {
-
-        var particle = new THREE.Sprite(new THREE.SpriteCanvasMaterial({ color: Math.random() * 0x808080 + 0x808080, program: programStroke }));
-        particle.position.x = Math.random() * 500 - 200;
-        particle.position.y = Math.random() * 400 - 200;
-        particle.position.z = Math.random() * 1800 - 700;
-        particle.scale.x = particle.scale.y = Math.random() * 5 + 10;
-        scene.add(particle);
-
-      }
+      addMedia(data.video, videocolor, 'video');
+      addMedia(data.photo, photocolor, 'photo');
+      addMedia(data.text, textcolor, 'text');
+      addMedia(data.audio, audiocolor, 'audio');
+      addMedia(data.print, printcolor, 'print');
 
       //
 
@@ -86,19 +113,12 @@ class Simple extends React.Component {
       //
 
       window.addEventListener('resize', onWindowResize, false);
-
-    }
+    };
 
     function onWindowResize() {
-      for (var i = 0; i < scene.children.length; i += 1) {
-        scene.children[i].material.program = programFill;
-      }
-
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
-
       renderer.setSize(window.innerWidth, window.innerHeight);
-
     }
 
     function onDocumentMouseMove(event) {
@@ -107,24 +127,22 @@ class Simple extends React.Component {
 
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-    }
+    };
 
     //
 
     function animate() {
       requestAnimationFrame(animate);
       render();
-    }
+    };
 
-    var radius = 300;
-    var theta = 0;
+    const radius = 250;
+    let theta = 0;
 
     function render() {
-
       // rotate camera
 
-      theta += 0.2;
+      theta += 0.1;
 
       camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
       camera.position.y = radius * Math.sin(THREE.Math.degToRad(theta));
@@ -135,31 +153,23 @@ class Simple extends React.Component {
 
       // find intersections
 
-      // raycaster.setFromCamera( mouse, camera );
+      raycaster.setFromCamera(mouse, camera);
 
-      // var intersects = raycaster.intersectObjects( scene.children );
+      const intersects = raycaster.intersectObjects(scene.children);
 
-      // if ( intersects.length > 0 ) {
+      if (intersects.length > 0) {
+        if (INTERSECTED !== intersects[0].object) {
+          if (INTERSECTED) INTERSECTED.material.program = programStroke;
+          INTERSECTED = intersects[0].object;
+          INTERSECTED.material.program = programFill;
+        }
+      } else {
+        if (INTERSECTED) INTERSECTED.material.program = programStroke;
 
-      // 	if ( INTERSECTED != intersects[ 0 ].object ) {
-
-      // 		if ( INTERSECTED ) INTERSECTED.material.program = programStroke;
-
-      // 		INTERSECTED = intersects[ 0 ].object;
-      // 		INTERSECTED.material.program = programFill;
-
-      // 	}
-
-      // } else {
-
-      // 	if ( INTERSECTED ) INTERSECTED.material.program = programStroke;
-
-      // 	INTERSECTED = null;
-
-      // }
+        INTERSECTED = null;
+      }
 
       renderer.render(scene, camera);
-
     }
   }
 
