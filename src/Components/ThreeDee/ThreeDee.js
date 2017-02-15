@@ -4,17 +4,6 @@ import * as THREE from 'three';
 require('./lib.js');
 
 class Simple extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-
-    // construct the position vector here, because if we use 'new' within render,
-    // React will think that things have changed when they have not.
-    this.cameraPosition = new THREE.Vector3(0, 0, 5);
-
-    this.state = {
-      cubeRotation: new THREE.Euler(),
-    };
-  }
 
   componentDidMount() {
     var container;
@@ -65,7 +54,7 @@ class Simple extends React.Component {
 
       container = document.getElementById('threecontainer');
 
-      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 10, 10000);
+      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 100, 1000000000);
       camera.position.set(0, 300, 500);
 
       scene = new THREE.Scene();
@@ -73,10 +62,10 @@ class Simple extends React.Component {
       for (var i = 0; i < 1700; i++) {
 
         var particle = new THREE.Sprite(new THREE.SpriteCanvasMaterial({ color: Math.random() * 0x808080 + 0x808080, program: programStroke }));
-        particle.position.x = Math.random() * 800 - 400;
-        particle.position.y = Math.random() * 800 - 400;
-        particle.position.z = Math.random() * 800 - 700;
-        particle.scale.x = particle.scale.y = Math.random() * 10 + 10;
+        particle.position.x = Math.random() * 500 - 200;
+        particle.position.y = Math.random() * 400 - 200;
+        particle.position.z = Math.random() * 1800 - 700;
+        particle.scale.x = particle.scale.y = Math.random() * 5 + 10;
         scene.add(particle);
 
       }
@@ -124,14 +113,11 @@ class Simple extends React.Component {
     //
 
     function animate() {
-
       requestAnimationFrame(animate);
-
       render();
-
     }
 
-    var radius = 600;
+    var radius = 300;
     var theta = 0;
 
     function render() {

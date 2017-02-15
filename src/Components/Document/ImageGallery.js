@@ -1,12 +1,4 @@
 import React from 'react';
-import css from 'next/css';
-
-const styles = {
-  galleryimage: css({
-    width: '80%',
-    maxWidth: '900px',
-  }),
-};
 
 class ImageGallery extends React.Component {
   constructor(props) {
