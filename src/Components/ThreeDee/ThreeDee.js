@@ -1,18 +1,33 @@
 import React from 'react';
 import * as THREE from 'three';
+import styled from 'styled-components';
 
 require('./lib.js');
+
+const Categories = styled.div`
+  z-index: 999;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 30px;
+`;
+
+const Category = styled.span`
+  padding: 10px;
+`;
 
 class Simple extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      selectedCategory: '',
       videocolor: '#00ccff',
       photocolor: '#3333cc',
       textcolor: '#99cc00',
       audiocolor: '#993399',
       printcolor: '#ff33cc',
     };
+    this.handleCategorySelect = this.handleCategorySelect.bind(this);
   }
 
   componentDidMount() {
@@ -173,9 +188,35 @@ class Simple extends React.Component {
     }
   }
 
+  handleCategorySelect(category) {
+    this.setState({
+      selectedCategory: category,
+    });
+  }
+
   render() {
     return (
-      <div id="threecontainer" />
+      <div>
+        <div id="threecontainer" />
+        <Categories>
+          <Category style={{ color: this.state.videocolor }} onMouseOver={() => this.handleCategorySelect('video')}>
+            Video
+          </Category>
+          <Category style={{ color: this.state.textcolor }} onMouseOver={() => this.handleCategorySelect('text')}>
+            Text
+          </Category>
+          <Category style={{ color: this.state.photocolor }} onMouseOver={() => this.handleCategorySelect('photos')}>
+            Photos
+          </Category>
+          <Category style={{ color: this.state.audiocolor }} onMouseOver={() => this.handleCategorySelect('audio')}>
+            Audio
+          </Category>
+          <Category style={{ color: this.state.printcolor }} onMouseOver={() => this.handleCategorySelect('prints')}>
+            Prints
+          </Category>
+        </Categories>
+      </div>
+
     );
   }
 }
