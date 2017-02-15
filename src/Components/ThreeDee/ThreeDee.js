@@ -36,6 +36,7 @@ class Simple extends React.Component {
     this.INTERSECTED = null;
     this.theta = 0;
     this.handleCategorySelect = this.handleCategorySelect.bind(this);
+    this.handleCategoryClear = this.handleCategoryClear.bind(this);
     this.animate = this.animate.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
     this.onDocumentMouseMove = this.onDocumentMouseMove.bind(this);
@@ -51,8 +52,22 @@ class Simple extends React.Component {
   }
 
   handleCategorySelect(category) {
+    for (let i = 0; i < this.scene.children.length; i ++ ) {
+      if (this.scene.children[i].media === category) {
+        this.scene.children[i].material.program = this.programFill;
+      }
+    }
     this.setState({
       selectedCategory: category,
+    });
+  }
+
+  handleCategoryClear() {
+    for (let i = 0; i < this.scene.children.length; i ++ ) {
+      this.scene.children[i].material.program = this.programStroke;
+    }
+    this.setState({
+      selectedCategory: '',
     });
   }
 
@@ -191,19 +206,19 @@ class Simple extends React.Component {
       <div>
         <div id="threecontainer" />
         <Categories>
-          <Category style={{ color: this.state.videocolor }} onMouseOver={() => this.handleCategorySelect('video')}>
+          <Category style={{ color: this.state.videocolor }} onMouseOut={this.handleCategoryClear} onMouseOver={() => this.handleCategorySelect('video')}>
             Video
           </Category>
-          <Category style={{ color: this.state.textcolor }} onMouseOver={() => this.handleCategorySelect('text')}>
+          <Category style={{ color: this.state.textcolor }} onMouseOut={this.handleCategoryClear} onMouseOver={() => this.handleCategorySelect('text')}>
             Text
           </Category>
-          <Category style={{ color: this.state.photocolor }} onMouseOver={() => this.handleCategorySelect('photos')}>
+          <Category style={{ color: this.state.photocolor }} onMouseOut={this.handleCategoryClear} onMouseOver={() => this.handleCategorySelect('photo')}>
             Photos
           </Category>
-          <Category style={{ color: this.state.audiocolor }} onMouseOver={() => this.handleCategorySelect('audio')}>
+          <Category style={{ color: this.state.audiocolor }} onMouseOut={this.handleCategoryClear} onMouseOver={() => this.handleCategorySelect('audio')}>
             Audio
           </Category>
-          <Category style={{ color: this.state.printcolor }} onMouseOver={() => this.handleCategorySelect('prints')}>
+          <Category style={{ color: this.state.printcolor }} onMouseOut={this.handleCategoryClear} onMouseOver={() => this.handleCategorySelect('print')}>
             Prints
           </Category>
         </Categories>
