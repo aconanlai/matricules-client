@@ -9,11 +9,11 @@ const Categories = styled.div`
   position: absolute;
   bottom: 0;
   right: 0;
-  font-size: 30px;
+  font-size: 60px;
 `;
 
 const Category = styled.span`
-  padding: 10px;
+  padding: 20px;
 `;
 
 class Simple extends React.Component {
