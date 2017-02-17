@@ -10,40 +10,7 @@
 	
 		<style>
 			body {
-				font-family: 'Open Sans', sans-serif;
-				text-align: center;
-				font-weight: 300;
-			}
-			
-		  	.title {
-		    	font-size: 30px;
-		    	color: #4F4F4F;
-		  	}
-
-		  	.subtitle {
-		    	font-size: 14px;
-		    	color: #AAAAAA;
-				padding-bottom: 15px;
-		  	}
-
-			.geo-path {
-				stroke: white;
-				stroke-width: 0.5px;
-				stroke-opacity: 1;
-				fill: #C0AA91;
-				fill-opacity: 1;
-			}
-
-			.cities,  .cityCover{
-				fill: #1A818C;
-			}
-
-			.label {
-				font-size: 18px;
-				text-anchor: middle;
-				fill: #707070;
-				font-family: 'Poiret One', cursive;
-				font-weight: 400;
+				margin: 0;
 			}
 		</style>
 	
@@ -55,7 +22,6 @@
 	<body>
 		<div id="chart"></div>
 		
-		<script src="countriesMap.js"></script>
 		<script src="populations.js"></script>
 
 		<script language="javascript" type="text/javascript">
@@ -65,13 +31,13 @@
 			///////////////////////////////////////////////////////////////////////////	
 
 			var margin  = {
-				top: 100,
+				top: 0,
 				right: 0,
 				bottom: 0,
 				left: 0
 			};
-			var width = 960 - margin.left - margin.right,
-				height = 600 - margin.top - margin.bottom;
+			var width = window.innerWidth - margin.left - margin.right,
+				height = window.innerHeight - margin.top - margin.bottom;
 						
 			//SVG container
 			var svg = d3.select('#chart')
@@ -107,159 +73,96 @@
 				.attr("operator","atop");
 
 		 	///////////////////////////////////////////////////////////////////////////
-			//////////////////////////// Set-up Map /////////////////////////////////
+			//////////////////////////////// Blobs ///////////////////////////////////
 			/////////////////////////////////////////////////////////////////////////// 
 
-			//Variables for the map
-			var projection = d3.geo.mercator()
-					.scale(170)
-					.translate([480,230]);
-	  
-			// var path = d3.geo.path()
-			// 		.projection(projection);
-	
-			// var map = svg.append("g")
-			// 			.attr("class", "map");
+            var centerx = window.innerWidth / 2;
+            var centery = window.innerHeight / 2;
 
-			// //Initiate the world map
-			// map.selectAll(".geo-path")
-			// 	.data(countriesMap[0].features)
-			// 	.enter().append("path")
-			// 		.attr("class", function(d) { return "geo-path" + " " + d.id; })
-			// 		.attr("id", function(d) { return d.properties.name; })
-			// 		.attr("d", path)
-			// 		.style("stroke-opacity", 1)
-			// 		.style("fill-opacity", 0.5);
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++ ) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
 
-		 	///////////////////////////////////////////////////////////////////////////
-			//////////////////////////////// Cities ///////////////////////////////////
-			/////////////////////////////////////////////////////////////////////////// 
+            var randocolor = getRandomColor();
 
-			//Radius scale
+            //Radius scale
+
 			var rScale = d3.scale.sqrt()
 				.range([0,34])
 				.domain([0, d3.max(populations, function(d) { return d.population; })]);
 
-			//Put the city locations into the data itself
-			populations.forEach(function(d,i) {
-					d.radius = rScale(d.population);
-					d.x = projection([d.longitude, d.latitude])[0];
-					d.y = projection([d.longitude, d.latitude])[1];
-			});
-
-			//Wrapper for the cities
+			// Wrapper
 			var cityWrapper = svg.append("g")
 				.attr("class", "cityWrapper")
-				.style("filter", "url(#gooeyCodeFilter)");
+				.style("filter", "url(#gooeyCodeFilter)")
+                .attr("fill", randocolor );
 				
-			//Place the city circles
-			var cities = cityWrapper.selectAll(".cities")
+			//Place the blobs
+			var blobs = cityWrapper.selectAll(".blobs")
 				.data(populations)
 				.enter().append("circle")
-				.attr("class", "cities")
+				.attr("class", "blobs")
 				.attr("r", function(d) { return d.radius ;})
-				.attr("cx", projection([0,0])[0])
-				.attr("cy", projection([0,0])[1])
-				.style("opacity", 1);
+				.attr("cx", centerx)
+				.attr("cy", centery)
+				.style("opacity", 1)
+                .attr("fill", randocolor );
 
-			var coverCirleRadius = 100;
+			var coverCircleRadius = 100;
 			//Circle over all others
 			cityWrapper.append("circle")
-				.attr("class", "cityCover")
-				.attr("r", coverCirleRadius)
-				.attr("cx", projection([0,0])[0])
-				.attr("cy", projection([0,0])[1]);
-
-		 	///////////////////////////////////////////////////////////////////////////
-			/////////////////////////// Country Labels ////////////////////////////////
-			/////////////////////////////////////////////////////////////////////////// 
-
-			//Calculate the centers for each country
-			var centers = getCenters("country", [width, height/0.8]);
-			centers.forEach(function(d) {
-					d.y = d.y - 100;
-					d.x = d.x + 0;
-			});//centers forEach
-
-			//Wrapper for the country labels
-			var labelWrapper = svg.append("g")
-				.attr("class", "labelWrapper");
-				
-			//Append the country labels
-		    labelWrapper.selectAll(".label")
-		      	.data(centers)
-		      	.enter().append("text")
-		      	.attr("class", "label")
-		      	.style("opacity", 0)
-		      	.attr("transform", function (d) { return "translate(" + (d.x) + ", " + (d.y - 60) + ")"; })
-		      	.text(function (d) { return d.name });
-																			
-			///////////////////////////////////////////////////////////////////////////
-			/////////////////////////// Set-up the force //////////////////////////////
-			///////////////////////////////////////////////////////////////////////////	
-
-			var force = d3.layout.force()
-				.gravity(.02)
-		    	.charge(0)
-		    	.on("tick", tick(centers, "country"));	
-
-            var forcespread = d3.layout.force()
-                .gravity(0)
-                .charge(0)
-                .on("tick", tick)
-                .start();
-		
-			var padding = 0;
-			var maxRadius = d3.max(populations, function(d) { return d.radius; });	
+				.attr("class", "blobCover")
+				.attr("r", coverCircleRadius)
+				.attr("cx", centerx)
+				.attr("cy", centery);
+																		
 
 			///////////////////////////////////////////////////////////////////////////
 			///////////////////////////// Do the loop /////////////////////////////////
 			///////////////////////////////////////////////////////////////////////////	
 					
 			loop();	
-			setInterval(loop, 15000);
+			setInterval(loop, 12000);
 			
 			function loop() {
-				placeCities();
+				placeBlobs();
 				// setTimeout(clusterCountry, 7000);
-				setTimeout(backToCenter, 12000);
-			}//loop
+				setTimeout(backToCenter, 6000);
+			}
 						
 			///////////////////////////////////////////////////////////////////////////
 			/////////////////////////// Animation steps ///////////////////////////////
 			///////////////////////////////////////////////////////////////////////////	
 					
-			//Move the cities from the center to their actual locations
-			function placeCities () {
-
-				//Stop the force layout (in case you move backward)
-				force.stop();
+			//Move the blobs from the center to their actual locations
+			function placeBlobs () {
 
 				//Make the cover circle shrink
-				d3.selectAll(".cityCover")
+				d3.selectAll(".blobCover")
 						.transition().duration(5000)
 						.attr("r", 0);
 
-				//Put the cities in their geo location
-				d3.selectAll(".cities")
+				// place blobs
+				d3.selectAll(".blobs")
 					.transition("move").duration(2000)
-					.delay(function(d,i) { return i*20; })
+					// .delay(function(d,i) { return i*20; })
 					.attr("r", function(d) {
 						return d.radius = rScale(d.population);
 					})
 					.attr("cx", function(d) {
-						return d.x = projection([d.longitude, d.latitude])[0];
+						return d.x = Math.floor((Math.random() * window.innerWidth) + 1);
 					})
 					.attr("cy", function(d) {
-						return d.y = projection([d.longitude, d.latitude])[1];
+						return d.y = Math.floor((Math.random() * window.innerHeight) + 1);
 					});
-						
-				//Around the end of the transition above make the circles see-through a bit
-				// d3.selectAll(".cities")
-				// 	.transition("dim").duration(2000).delay(4000)
-				// 	.style("opacity", 0.8);
 
-				//"Remove" gooey filter from cities during the transition
+
+				//"Remove" gooey filter during the transition
 				//So at the end they do not appear to melt together anymore
 				d3.selectAll(".blurValues")
 					.transition().duration(4000)
@@ -268,43 +171,10 @@
 													"1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 6 -5"); 
 					});
 
-			}//placeCities
-
-			//Cluster all the cities based on the country
-			// function clusterCountry() {
-
-			// 	///Start force again
-			// 	force.start();
-
-			// 	//Dim the map
-			// 	// d3.selectAll(".geo-path")
-			// 	// 	.transition().duration(1000)
-			// 	// 	.style("fill-opacity", 0);
-					
-			// 	//Show the labels
-			// 	d3.selectAll(".label")
-			// 		.transition().duration(500)
-			// 		.style("opacity", 1);
-
-			// 	d3.selectAll(".cities")
-			// 		.transition().duration(1000)
-			// 		.style("opacity", 1);
-
-			// 	//Reset gooey filter values back to a visible "gooey" effect
-			//    	d3.selectAll(".blurValues")
-			// 		.transition().duration(2000)
-			// 		.attrTween("values", function() { 
-			// 			return d3.interpolateString("1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 6 -5", 
-			// 										"1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -6"); 
-			// 		});
-
-			// }//clusterCountry
+			}
 
 			//Move the circles back to the center location again
 			function backToCenter () {
-
-				//Stop the force layout
-				force.stop();
 
 				//Hide labels
 				d3.selectAll(".label")
@@ -317,16 +187,16 @@
 				// 	.style("fill-opacity", 0.5);
 				
 			   	//Make the cover cirlce to its true size again
-			    d3.selectAll(".cityCover")
+			    d3.selectAll(".blobCover")
 					.transition().duration(3000).delay(500)
-					.attr("r", coverCirleRadius);
+					.attr("r", coverCircleRadius);
 
-			    //Move the cities to the 0,0 coordinate
-				d3.selectAll(".cities")
+			    //Move the blobs to the center
+				d3.selectAll(".blobs")
 					.transition()
 					.duration(2000).delay(function(d,i) { return i*10; })
-					.attr("cx", projection([0, 0])[0])
-					.attr("cy", projection([0, 0])[1])
+					.attr("cx", centerx)
+					.attr("cy", centery)
 					.style("opacity", 1);
 					
 				d3.selectAll(".blurValues")
@@ -336,81 +206,7 @@
 													"1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -5");
 					});
 
-			}//backToCenter
-	
-		 	///////////////////////////////////////////////////////////////////////////
-			/////////////////////////// Helper functions //////////////////////////////
-			/////////////////////////////////////////////////////////////////////////// 
-
-			//Radial layout
-			function getCenters (vname, size) {
-			  	var centers = [], 
-					mapping,
-					flags = [];
-				for( var i = 0; i < populations.length; i++) {
-				    if( flags[populations[i][vname]]) continue;
-				    flags[populations[i][vname]] = true;
-				    centers.push({name: populations[i][vname], value: 1});
-				}//for i
-			  	centers.sort(function(a, b){ return d3.ascending(a.name, b.name); });
-
-			  	mapping = d3.layout.pack()
-			  		.sort(function(d) { return d[vname]; })
-			  		.size(size);
-			  	mapping.nodes({children: centers});
-
-			  	return centers;
-			}//getCenters
-	
-			//Radial lay-out
-			function tick (centers, varname) {
-				var foci = {};
-				for (var i = 0; i < centers.length; i++) {
-					foci[centers[i].name] = centers[i];
-				}
-	  
-				return function (e) {
-					for (var i = 0; i < populations.length; i++) {
-					  var o = populations[i];
-					  var f = foci[o[varname]];
-					  o.y += (f.y - o.y) * e.alpha;
-					  o.x += (f.x - o.x) * e.alpha;
-					}//for
-
-					d3.selectAll(".cities")
-						.each(collide(.5))
-						.attr("cx", function (d) { return d.x; })
-						.attr("cy", function (d) { return d.y; });
-
-				}//function
-			}//tick
-
-			function collide(alpha) {
-		          var quadtree = d3.geom.quadtree(populations);
-		          return function (d) {
-		            var r = d.radius + maxRadius + padding,
-		                nx1 = d.x - r,
-		                nx2 = d.x + r,
-		                ny1 = d.y - r,
-		                ny2 = d.y + r;
-		            quadtree.visit(function(quad, x1, y1, x2, y2) {
-		              if (quad.point && (quad.point !== d)) {
-		                var x = d.x - quad.point.x,
-		                    y = d.y - quad.point.y,
-		                    l = Math.sqrt(x * x + y * y),
-		                    r = d.radius + quad.point.radius + padding;
-		                if (l < r) {
-		                  l = (l - r) / l * alpha;
-		                  d.x -= x *= l;
-		                  d.y -= y *= l;
-		                  quad.point.x += x;
-		                  quad.point.y += y;
-		                }
-		              }
-		              return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-		            });
-		          };
-		    }//collide
+			}
 																	
 		</script>
 

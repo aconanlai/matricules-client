@@ -13,29 +13,29 @@ const YearDisplay = styled.span`
 
 const Year2016 = styled.div`
   width: 100%;
-  height: 150vh;
-  padding-top: 75vh;
+  height: 200vh;
+  padding-top: 100vh;
   background: yellow;
 `;
 
 const Year2015 = styled.div`
   width: 100%;
-  height: 150vh;
-  padding-top: 75vh;
+  height: 200vh;
+  padding-top: 100vh;
   background: pink;
 `;
 
 const Year2014 = styled.div`
   width: 100%;
-  height: 150vh;
-  padding-top: 75vh;
+  height: 200vh;
+  padding-top: 100vh;
   background: coral;
 `;
 
 const Year2013 = styled.div`
   width: 100%;
-  height: 150vh;
-  padding-top: 75vh;
+  height: 200vh;
+  padding-top: 100vh;
   background: limegreen;
 `;
 

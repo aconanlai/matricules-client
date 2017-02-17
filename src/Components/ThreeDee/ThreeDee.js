@@ -105,10 +105,10 @@ class Simple extends React.Component {
     // process data object
     const data = {
       video: 400,
-      photo: 600,
-      text: 200,
-      audio: 200,
-      print: 300,
+      photo: 300,
+      text: 400,
+      audio: 600,
+      print: 100,
     };
 
     this.container = document.getElementById('threecontainer');
