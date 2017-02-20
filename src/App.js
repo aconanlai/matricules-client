@@ -7,7 +7,7 @@ import GooeyTest from './Components/GooeyTest';
 class App extends Component {
   render() {
     return (
-      <GooeyTest />
+      <TimeLineTest />
     );
   }
 }
