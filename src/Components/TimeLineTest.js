@@ -14,6 +14,8 @@ const YearDisplay = styled.span`
   text-align: center;
   top: 0;
   font-size: 200px;
+  color: slate;
+  text-shadow: 5px 5px 0px #eee, 7px 7px 0px #707070;
 `;
 
 const Year2016 = styled.div`
@@ -50,7 +52,7 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      year: '',
+      year: '2016',
       mounted: false,
       chart: '',
       transitioning: false,
@@ -61,8 +63,6 @@ class Home extends Component {
     this.backToCenter = this.backToCenter.bind(this);
     this.placeBlobs = this.placeBlobs.bind(this);
     this.getRandomColor = this.getRandomColor.bind(this);
-    this.handleMouseOver = this.handleMouseOver.bind(this);
-    this.handleMouseOut = this.handleMouseOut.bind(this);
     this.centerx = window.innerWidth / 2;
     this.centery = window.innerHeight / 2;
     this.coverCircleRadius = 60;
@@ -158,16 +158,17 @@ class Home extends Component {
       .attr('r', component.coverCircleRadius)
       .attr('cx', component.centerx)
       .attr('cy', component.centery);
-    
-    const tooltip = d3.select('#renderedD3').append("div")	
-    .attr('class', 'tooltip')
-    .style("position", "absolute")
-    .style("z-index", "999")
-    .style("visibility", "hidden")
-    .style("bottom", "0")
-    .style("right", "0")
-    .style("font-size", "180px")
-    .text("a simple tooltip");
+
+    const tooltip = d3.select('#renderedD3').append("div")
+      .attr('class', 'tooltip')
+      .style("position", "absolute")
+      .style("z-index", "999")
+      .style("visibility", "hidden")
+      .style("bottom", "0")
+      .style("right", "0")
+      .style("font-size", "180px")
+      .style("text-shadow", "5px 5px 0px #eee, 7px 7px 0px #707070")
+      .text("a simple tooltip");
   }
 
   handleChange(event) {
@@ -208,28 +209,29 @@ class Home extends Component {
     const component = this;
     const randocolor = component.getRandomColor();
 
-    component.setState({
-      transitioning: true,
-    });
-    setTimeout(() => {
-      component.setState({
-        transitioning: false,
-      });
-    }, 2000);
+    // place blobs
+    const blobs = d3.selectAll('.blobs')
+      .attr('fill', randocolor);
+
+    // component.setState({
+    //   transitioning: true,
+    // });
+    // setTimeout(() => {
+    //   component.setState({
+    //     transitioning: false,
+    //   });
+    // }, 1000);
     //Make the cover circle shrink
     d3.selectAll('.blobCover')
       .attr('fill', randocolor)
       .transition().duration(2000)
       .attr('r', 0);
 
-    // place blobs
-    const blobs = d3.selectAll('.blobs')
-      .attr('fill', randocolor)
-      .on("mouseover", function (d, i) {
+    blobs.on("mouseover", function (d, i) {
         if (component.transitioning !== true) {
           d3.selectAll('.tooltip')
-          .style("visibility", "visible")
-          .text(d.keyword);
+            .style("visibility", "visible")
+            .text(d.keyword);
           d3.select(this)
             .transition()
             .duration(200)
@@ -238,14 +240,17 @@ class Home extends Component {
         }
       })
       .on("mouseout", function (d, i) {
-         d3.selectAll('.tooltip')
-          .style("visibility", "hidden")
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('opacity', 1)
-          .style('fill', randocolor);
-      })
+        if (component.transitioning !== true) {
+          d3.selectAll('.tooltip')
+            .style("visibility", "hidden")
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', 1)
+            .style('fill', randocolor);
+        }
+      });
+    
 
     blobs.transition('move').duration(2000)
       // .delay(function(d,i) { return i*20; })
@@ -273,14 +278,14 @@ class Home extends Component {
   backToCenter() {
     const component = this;
 
-    component.setState({
-      transitioning: true,
-    });
-    setTimeout(() => {
-      component.setState({
-        transitioning: false,
-      });
-    }, 2000);
+    // component.setState({
+    //   transitioning: true,
+    // });
+    // setTimeout(() => {
+    //   component.setState({
+    //     transitioning: false,
+    //   });
+    // }, 1000);
 
     //Make the cover cirlce to its true size again
     d3.selectAll('.blobCover')
@@ -303,37 +308,6 @@ class Home extends Component {
       });
   }
 
-  handleMouseOver(d, i) {  // Add interactivity
-    console.log(i)
-    // // Use D3 to select element, change color and size
-    // d3.select(this).attr({
-    //   fill: "orange",
-    //   r: d.r * 2
-    // });
-
-    // // Specify where to put label of text
-    // const svg = d3.select('#renderedD3');
-    // svg.append("text").attr({
-    //   id: "t" + d.x + "-" + d.y + "-" + i,  // Create an id for text so we can select it later for removing on mouseout
-    //   x: function () { return (d.x) - 30; },
-    //   y: function () { return (d.y) - 15; }
-    // })
-    //   .text(function () {
-    //     return [d.x, d.y];  // Value of the text
-    //   });
-  }
-
-  handleMouseOut(d, i) {
-    // Use D3 to select element, change color back to normal
-    // d3.select(this).attr({
-    //   fill: "black",
-    //   r: d.r
-    // });
-
-    // // Select text by id and then remove
-    // d3.select("#t" + d.x + "-" + d.y + "-" + i).remove();  // Remove text location
-  }
-
   render() {
     return (
       <Wrapper>
@@ -349,7 +323,7 @@ class Home extends Component {
         <Year2016>
           <Waypoint onEnter={() => this.handleWaypointEnter('2016')} onLeave={() => this.handleWaypointLeave('2016')}>
             <div style={{ 'height': '50%' }} id="year2016">
-          </div>
+            </div>
           </Waypoint>
         </Year2016>
         <Year2015>
