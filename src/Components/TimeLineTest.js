@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 require('smoothscroll-polyfill').polyfill();
 
 const Wrapper = styled.div`
-  background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#cbccc8));
+  background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#1eb8d9));
 `;
 
 const YearDisplay = styled.span`
@@ -53,6 +53,7 @@ class Home extends Component {
       year: '',
       mounted: false,
       chart: '',
+      transitioning: false,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleWaypointEnter = this.handleWaypointEnter.bind(this);
@@ -180,13 +181,17 @@ class Home extends Component {
   }
 
   handleWaypointEnter(year) {
-    this.placeBlobs();
+    if (this.state.transitioning !== true) {
+      this.placeBlobs();
+    }
     console.log('entering' + year);
     this.setState({ year });
   }
 
   handleWaypointLeave(year) {
-    this.backToCenter();
+    if (this.state.transitioning !== true) {
+      this.backToCenter();
+    }
     console.log('leaving' + year);
   }
 
@@ -202,6 +207,15 @@ class Home extends Component {
   placeBlobs() {
     const component = this;
     const randocolor = component.getRandomColor();
+
+    component.setState({
+      transitioning: true,
+    });
+    setTimeout(() => {
+      component.setState({
+        transitioning: false,
+      });
+    }, 2000);
     //Make the cover circle shrink
     d3.selectAll('.blobCover')
       .attr('fill', randocolor)
@@ -212,14 +226,16 @@ class Home extends Component {
     const blobs = d3.selectAll('.blobs')
       .attr('fill', randocolor)
       .on("mouseover", function (d, i) {
-        d3.selectAll('.tooltip')
+        if (component.transitioning !== true) {
+          d3.selectAll('.tooltip')
           .style("visibility", "visible")
           .text(d.keyword);
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('opacity', .5)
-          .style('fill', 'red')
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', .5)
+            .style('fill', 'red')
+        }
       })
       .on("mouseout", function (d, i) {
          d3.selectAll('.tooltip')
@@ -256,6 +272,15 @@ class Home extends Component {
 
   backToCenter() {
     const component = this;
+
+    component.setState({
+      transitioning: true,
+    });
+    setTimeout(() => {
+      component.setState({
+        transitioning: false,
+      });
+    }, 2000);
 
     //Make the cover cirlce to its true size again
     d3.selectAll('.blobCover')
@@ -324,28 +349,24 @@ class Home extends Component {
         <Year2016>
           <Waypoint onEnter={() => this.handleWaypointEnter('2016')} onLeave={() => this.handleWaypointLeave('2016')}>
             <div style={{ 'height': '50%' }} id="year2016">
-              2016
           </div>
           </Waypoint>
         </Year2016>
         <Year2015>
           <Waypoint onEnter={() => this.handleWaypointEnter('2015')} onLeave={() => this.handleWaypointLeave('2015')}>
             <div style={{ 'height': '50%' }} id="year2015">
-              2015
             </div>
           </Waypoint>
         </Year2015>
         <Year2014>
           <Waypoint onEnter={() => this.handleWaypointEnter('2014')} onLeave={() => this.handleWaypointLeave('2014')}>
             <div style={{ 'height': '50%' }} id="year2014">
-              2014
             </div>
           </Waypoint>
         </Year2014>
         <Year2013>
           <Waypoint onEnter={() => this.handleWaypointEnter('2013')} onLeave={() => this.handleWaypointLeave('2013')}>
             <div style={{ 'height': '50%' }} id="year2013">
-              2013
             </div>
           </Waypoint>
         </Year2013>
