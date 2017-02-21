@@ -16,6 +16,9 @@ const YearDisplay = styled.span`
   font-size: 200px;
   color: slate;
   text-shadow: 5px 5px 0px #eee, 7px 7px 0px #707070;
+  &:hover {
+    cursor: zoom-in;
+  }
 `;
 
 const Year2016 = styled.div`
