@@ -13,7 +13,7 @@ injectGlobal`
 }
 
 .doc-height {
-  height: 80vh;
+  transition: height .5s ease-in-out;
 }
 
 .doc-enter, .doc-leave {
@@ -22,23 +22,23 @@ injectGlobal`
 }
 
 .doc-enter {
-  transform: translateY(150%);
+  transform: translate(-50%, -150%);
 }
 
 .doc-enter.doc-enter-active {
-  transform: translateY(0%);
+  transform: translate(-50%, -50%);
 }
 
 .doc-leave {
-  transform: translateY(0%);
+  transform: translate(-50%, -50%);
 }
 
 .doc-leave.doc-leave-active {
-  transform: translateY(-150%);
+  transform: translate(150%, -50%);
 }
 
 .keyword-height {
-  height: 80vh;
+  transition: height .5s ease-in-out;
 }
 
 .keyword-enter, .keyword-leave {
@@ -47,19 +47,19 @@ injectGlobal`
 }
 
 .keyword-enter {
-  transform: translate(150%);
+  transform: translate(-50%, -150%);
 }
 
 .keyword-enter.keyword-enter-active {
-  transform: translate(0%);
+  transform: translate(-50%, -50%);
 }
 
 .keyword-leave {
-  transform: translate(0%);
+  transform: translate(-50%, -50%);
 }
 
 .keyword-leave.keyword-leave-active {
-  transform: translate(-150%);
+  transform: translate(150%, -50%);
 }
 `;
 
@@ -129,6 +129,7 @@ class Document extends Component {
           transitionName={this.state.selectedContent}
           transitionEnterTimeout={500}
           transitionLeaveTimeout={500}
+          overflowHidden={false}
         >
           {content}
         </ReactCSSTransitionReplace>

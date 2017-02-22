@@ -2,14 +2,15 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: block;
   background: white;
   border: 5px solid black;
-  height: 100%;
   width: 80%;
   max-width: 1000px;
-  margin: 100px auto;
   box-shadow: 5px 5px 0px #eee, 7px 7px 0px #707070;
   z-index: 999;
 `;
