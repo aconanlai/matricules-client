@@ -7,7 +7,7 @@ import Browser from './Components/Browser/Browser';
 class App extends Component {
   render() {
     return (
-      <Browser />
+      <TimeLineTest />
     );
   }
 }

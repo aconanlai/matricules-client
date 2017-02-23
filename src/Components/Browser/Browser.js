@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled, { keyframes, injectGlobal } from 'styled-components';
-import ReactCSSTransitionReplace from 'react-css-transition-replace';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import floppydisk from '../../Assets/floppy.png';
 import Wrapper from './Wrapper';
 import Home from './Home/Home';
@@ -12,80 +12,58 @@ injectGlobal`
   height: 80vh;
 }
 
-.doc-height {
-  transition: height .5s ease-in-out;
-}
-
 .doc-enter, .doc-leave {
-  -webkit-transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
-  transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+  -webkit-transition: transform 700ms ease-in-out, opacity 700ms ease-in-out;
+  transition: transform 700ms ease-in-out, opacity 700ms ease-in-out;
 }
-
 .doc-enter {
-  transform: translate(-50%, -150%);
+  transform: translate(-50%, -250%);
+  z-index: 1000;
 }
-
 .doc-enter.doc-enter-active {
   transform: translate(-50%, -50%);
 }
-
 .doc-leave {
   transform: translate(-50%, -50%);
 }
-
 .doc-leave.doc-leave-active {
-  transform: translate(150%, -50%);
-}
-
-.keyword-height {
-  transition: height .5s ease-in-out;
+  transform: translate(250%, -50%);
 }
 
 .keyword-enter, .keyword-leave {
-  -webkit-transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
-  transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+  -webkit-transition: transform 700ms ease-in-out, opacity 700ms ease-in-out;
+  transition: transform 700ms ease-in-out, opacity 700ms ease-in-out;
 }
-
 .keyword-enter {
-  transform: translate(-50%, -150%);
+  transform: translate(-50%, -250%);
+  z-index: 1000;
 }
-
 .keyword-enter.keyword-enter-active {
   transform: translate(-50%, -50%);
 }
-
 .keyword-leave {
   transform: translate(-50%, -50%);
 }
-
 .keyword-leave.keyword-leave-active {
-  transform: translate(150%, -50%);
-}
-
-.home-height {
-  transition: height .5s ease-in-out;
+  transform: translate(250%, -50%);
 }
 
 .home-enter, .home-leave {
-  -webkit-transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
-  transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+  -webkit-transition: transform 700ms ease-in-out, opacity 700ms ease-in-out;
+  transition: transform 700ms ease-in-out, opacity 700ms ease-in-out;
 }
-
 .home-enter {
   transform: translate(-150%, -50%);
+  z-index: 1000;
 }
-
 .home-enter.home-enter-active {
   transform: translate(-50%, -50%);
 }
-
 .home-leave {
-  background: yellow;
   transform: translate(-50%, -50%);
 }
-
 .home-leave.home-leave-active {
-  transform: translate(-50%, -150%);
+  transform: translate(-50%, -250%);
 }
 `;
 
@@ -154,14 +132,10 @@ class Document extends Component {
         <Background>
           <Floppy src={floppydisk} />
         </Background>
-        <ReactCSSTransitionReplace
-          transitionName={this.state.selectedContent}
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={500}
-          overflowHidden={false}
-        >
+        <ReactCSSTransitionGroup transitionName={this.state.selectedContent}
+          transitionEnterTimeout={700} transitionLeaveTimeout={700}>
           {content}
-        </ReactCSSTransitionReplace>
+        </ReactCSSTransitionGroup>
       </Browser>
     );
   }
