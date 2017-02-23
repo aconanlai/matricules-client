@@ -23,25 +23,25 @@ const YearDisplay = styled.span`
 
 const Year2016 = styled.div`
   width: 100%;
-  height: 175vh;
+  height: 250vh;
   padding-top: 75vh;
 `;
 
 const Year2015 = styled.div`
   width: 100%;
-  height: 250vh;
-  padding-top: 125vh;
+  height: 350vh;
+  padding-top: 175vh;
 `;
 
 const Year2014 = styled.div`
   width: 100%;
-  height: 250vh;
-  padding-top: 125vh;
+  height: 350vh;
+  padding-top: 175vh;
 `;
 
 const Year2013 = styled.div`
   width: 100%;
-  height: 250vh;
+  height: 350vh;
   padding-top: 125vh;
 `;
 
@@ -58,8 +58,8 @@ class Home extends Component {
       year: '2016',
       mounted: false,
       chart: '',
-      transitioning: false,
     };
+    this.transitioning = 0;
     this.handleChange = this.handleChange.bind(this);
     this.handleWaypointEnter = this.handleWaypointEnter.bind(this);
     this.handleWaypointLeave = this.handleWaypointLeave.bind(this);
@@ -162,16 +162,16 @@ class Home extends Component {
       .attr('cx', component.centerx)
       .attr('cy', component.centery);
 
-    const tooltip = d3.select('#renderedD3').append("div")
+    const tooltip = d3.select('#renderedD3').append('div')
       .attr('class', 'tooltip')
-      .style("position", "absolute")
-      .style("z-index", "999")
-      .style("visibility", "hidden")
-      .style("bottom", "0")
-      .style("right", "0")
-      .style("font-size", "180px")
-      .style("text-shadow", "5px 5px 0px #eee, 7px 7px 0px #707070")
-      .text("a simple tooltip");
+      .style('position', 'absolute')
+      .style('z-index', '999')
+      .style('opacity', '0')
+      .style('point-events', 'none')
+      .style('bottom', '0')
+      .style('right', '0')
+      .style('font-size', '180px')
+      .style('text-shadow', '5px 5px 0px #eee, 7px 7px 0px #707070')
   }
 
   handleChange(event) {
@@ -185,7 +185,8 @@ class Home extends Component {
   }
 
   handleWaypointEnter(year) {
-    if (this.state.transitioning !== true) {
+    console.log(this.transitioning)
+    if (this.transitioning === 0) {
       this.placeBlobs();
     }
     console.log('entering' + year);
@@ -193,7 +194,8 @@ class Home extends Component {
   }
 
   handleWaypointLeave(year) {
-    if (this.state.transitioning !== true) {
+    console.log(this.transitioning)
+    if (this.transitioning === 0) {
       this.backToCenter();
     }
     console.log('leaving' + year);
@@ -210,6 +212,7 @@ class Home extends Component {
 
   placeBlobs() {
     const component = this;
+    component.transitioning = 238;
     const randocolor = component.getRandomColor();
 
     // place blobs
@@ -227,35 +230,39 @@ class Home extends Component {
     //Make the cover circle shrink
     d3.selectAll('.blobCover')
       .attr('fill', randocolor)
-      .transition().duration(2000)
+      .transition().duration(1500)
       .attr('r', 0);
 
-    blobs.on("mouseover", function (d, i) {
-        if (component.transitioning !== true) {
+    blobs.on('mouseover', function (d, i) {
+      if (component.transitioning === 0) {
+        d3.selectAll('.tooltip')
+          .transition()
+          .duration(200)
+          .style('opacity', '1')
+          .text(d.keyword);
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .style('opacity', .5)
+          .attr('fill', 'red')
+      }
+    })
+      .on('mouseout', function (d, i) {
+        if (component.transitioning === 0) {
           d3.selectAll('.tooltip')
-            .style("visibility", "visible")
-            .text(d.keyword);
+            .transition()
+            .duration(200)
+            .style('opacity', '0');
           d3.select(this)
             .transition()
             .duration(200)
-            .attr('opacity', .5)
-            .style('fill', 'red')
-        }
-      })
-      .on("mouseout", function (d, i) {
-        if (component.transitioning !== true) {
-          d3.selectAll('.tooltip')
-            .style("visibility", "hidden")
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('opacity', 1)
-            .style('fill', randocolor);
+            .style('opacity', 1)
+            .attr('fill', randocolor);
         }
       });
-    
 
-    blobs.transition('move').duration(2000)
+
+    blobs.transition('move').duration(1500)
       // .delay(function(d,i) { return i*20; })
       .attr('r', function (d) {
         return d.radius = component.rScale(d.occurance);
@@ -265,6 +272,8 @@ class Home extends Component {
       })
       .attr('cy', function (d) {
         return d.y = Math.floor((Math.random() * window.innerHeight) + 1);
+      }).each('end', function () {
+        component.transitioning = component.transitioning - 1;
       });
 
 
@@ -280,31 +289,27 @@ class Home extends Component {
 
   backToCenter() {
     const component = this;
-
-    // component.setState({
-    //   transitioning: true,
-    // });
-    // setTimeout(() => {
-    //   component.setState({
-    //     transitioning: false,
-    //   });
-    // }, 1000);
-
+    component.transitioning = 238;
+    console.log(component.transitioning)
     //Make the cover cirlce to its true size again
     d3.selectAll('.blobCover')
-      .transition().duration(1500).delay(100)
+      .transition().duration(1000).delay(100)
       .attr('r', component.coverCircleRadius);
 
     //Move the blobs to the center
     d3.selectAll('.blobs')
       .transition()
-      .duration(1500).delay(function (d, i) { return i * 5; })
+      .duration(1000).delay(function (d, i) { return i * 5; })
       .attr('cx', component.centerx)
       .attr('cy', component.centery)
-      .style('opacity', 1);
+      .style('opacity', 1)
+      .each('end', function () {
+        component.transitioning = component.transitioning - 1;
+        console.log(component.transitioning)
+      });
 
     d3.selectAll('.blurValues')
-      .transition().duration(1000).delay(1000)
+      .transition().duration(800).delay(300)
       .attrTween('values', function () {
         return d3.interpolateString('1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -6',
           '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -5');
@@ -317,33 +322,33 @@ class Home extends Component {
         <div style={{ position: 'fixed', top: 0, left: 0 }} id='renderedD3'>
         </div>
         <Select value={this.state.value} onChange={this.handleChange}>
-          <option value="2016">2016</option>
-          <option value="2015">2015</option>
-          <option value="2014">2014</option>
-          <option value="2013">2013</option>
+          <option value='2016'>2016</option>
+          <option value='2015'>2015</option>
+          <option value='2014'>2014</option>
+          <option value='2013'>2013</option>
         </Select>
         <YearDisplay>{this.state.year}</YearDisplay>
         <Year2016>
           <Waypoint onEnter={() => this.handleWaypointEnter('2016')} onLeave={() => this.handleWaypointLeave('2016')}>
-            <div style={{ 'height': '50%' }} id="year2016">
+            <div style={{ 'height': '50%' }} id='year2016'>
             </div>
           </Waypoint>
         </Year2016>
         <Year2015>
           <Waypoint onEnter={() => this.handleWaypointEnter('2015')} onLeave={() => this.handleWaypointLeave('2015')}>
-            <div style={{ 'height': '50%' }} id="year2015">
+            <div style={{ 'height': '50%' }} id='year2015'>
             </div>
           </Waypoint>
         </Year2015>
         <Year2014>
           <Waypoint onEnter={() => this.handleWaypointEnter('2014')} onLeave={() => this.handleWaypointLeave('2014')}>
-            <div style={{ 'height': '50%' }} id="year2014">
+            <div style={{ 'height': '50%' }} id='year2014'>
             </div>
           </Waypoint>
         </Year2014>
         <Year2013>
           <Waypoint onEnter={() => this.handleWaypointEnter('2013')} onLeave={() => this.handleWaypointLeave('2013')}>
-            <div style={{ 'height': '50%' }} id="year2013">
+            <div style={{ 'height': '50%' }} id='year2013'>
             </div>
           </Waypoint>
         </Year2013>
