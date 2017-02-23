@@ -3,13 +3,13 @@ import styled, { keyframes, injectGlobal } from 'styled-components';
 import ReactCSSTransitionReplace from 'react-css-transition-replace';
 import floppydisk from '../../Assets/floppy.png';
 import Wrapper from './Wrapper';
+import Home from './Home/Home';
 import Doc from './Document/Document';
 import Keyword from './Keyword/Keyword';
 
 injectGlobal`
-
 .contentsquare {
-  min-height: 80vh;
+  height: 80vh;
 }
 
 .doc-height {
@@ -61,6 +61,32 @@ injectGlobal`
 .keyword-leave.keyword-leave-active {
   transform: translate(150%, -50%);
 }
+
+.home-height {
+  transition: height .5s ease-in-out;
+}
+
+.home-enter, .home-leave {
+  -webkit-transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+  transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+}
+
+.home-enter {
+  transform: translate(-150%, -50%);
+}
+
+.home-enter.home-enter-active {
+  transform: translate(-50%, -50%);
+}
+
+.home-leave {
+  background: yellow;
+  transform: translate(-50%, -50%);
+}
+
+.home-leave.home-leave-active {
+  transform: translate(-50%, -150%);
+}
 `;
 
 const Browser = styled.div`
@@ -97,13 +123,13 @@ class Document extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedContent: 'doc'
-    }
+      selectedContent: 'home',
+    };
     this.handleGoAway = this.handleGoAway.bind(this);
   }
 
   handleGoAway() {
-    const newcontent = (this.state.selectedContent === 'doc') ? 'keyword' : 'doc';
+    const newcontent = (this.state.selectedContent === 'home') ? 'doc' : 'home';
     this.setState({ selectedContent: newcontent });
   }
 
@@ -116,8 +142,11 @@ class Document extends Component {
       case 'keyword':
         content = <Wrapper key="keyword"><Keyword /></Wrapper>;
         break;
+      case 'home':
+        content = <Wrapper key="home"><Home /></Wrapper>;
+        break;
       default:
-        content = <Wrapper key="doc"><Doc /></Wrapper>;
+        content = <Wrapper key="home"><Home /></Wrapper>;
     }
     return (
       <Browser>

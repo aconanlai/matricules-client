@@ -1,110 +1,66 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import DocumentsList from '../DocumentsList/DocumentsList';
 
 const Title = styled.span`
   display: block;
-  position: relative;
-  top: -50px;
-  left: -50px;
-  font-size: 80px;
-  text-shadow: 3px 3px 0px #1eb8d9, 3px 3px 0px #707070;
-`;
-
-const Section = styled.div`
-  display: block;
-  padding: 15px;
-  font-size: 30px;
-`;
-
-const Label = styled.span`
-  margin-right: 10px;
-  color: #027792;
-`;
-
-const Content = styled.span`
-  color: black;
-`;
-
-const Keywords = styled.div`
-  display: flex;
-  flex-direction: row-reverse;
-  flex-wrap: wrap;
-  width: 100%;
   position: absolute;
   bottom: -50px;
   right: -50px;
-  font-size: 40px;
-  line-height: 30px;
-  text-shadow: -3px -3px 0px #1eb8d9, -3px -3px 0px #707070;
+  font-size: 80px;
+  text-shadow: 3px 3px 0px #70D1E7, 3px 3px 0px #707070;
+`;
+
+const Wrapper = styled.div`
+  overflow: auto;
+  height: 100%;
 `;
 
 class Keyword extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      display: true,
-      accession_number: '',
-      categorie: '',
-      date: '',
-      description: '',
-      descriptionFrench: '',
-      keywords: [],
-      images: [],
-      links: [],
-      medium: '',
-      notes: '',
-      physical_description: '',
-      sujet: '',
-      sujetFrench: '',
-      support: '',
-      title: '',
-      audio: [],
-      video: [],
-      other: [],
+      year: '2016',
+      keyword: '',
+      loading: true,
+      doclist: [],
+      searchterm: '',
     };
-    this.handleGoAway = this.handleGoAway.bind(this);
   }
 
   componentDidMount() {
     this.mounted = true;
     console.log('mounting');
-    // fetch('http://matricules.nfshost.com/api/document/2007FOR70411O').then((response) => {
-    //   return response.json();
-    // }).then((_data) => this.setState({
-    //   accession_number: _data.accession_number,
-    //   categorie: _data.categorie,
-    //   date: _data.date,
-    //   description: _data.description,
-    //   descriptionFrench: _data.description_fr,
-    //   keywords: _data.keywords,
-    //   images: _data.images,
-    //   links: _data.links,
-    //   medium: _data.medium,
-    //   notes: _data.notes,
-    //   physical_description: _data.physical_description,
-    //   sujet: _data.sujet,
-    //   sujetFrench: _data.sujet_fr,
-    //   support: _data.support,
-    //   title: _data.title,
-    //   videos: _data.videos,
-    //   audio: _data.audio,
-    //   other: _data.other,
-    // }));
+    fetch('http://matricules.nfshost.com/api/documents?year=all&keyword=radio&searchterm=').then((response) => {
+      return response.json();
+    }).then((json) => {
+      // only set state if component is mounted
+      if (this.mounted === true) {
+        this.setState({ doclist: json, loading: false, });
+      }
+    });
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
 
-  handleGoAway() {
-    this.setState({ display: false });
-  }
-
   render() {
+    let doclist;
+    if (this.state.loading === true) {
+      doclist = 'loading';
+    } else if (this.state.loading === false && this.state.doclist.length === 0) {
+      doclist = 'no matching docs';
+    } else {
+      doclist = <DocumentsList doclist={this.state.doclist} />;
+    }
     return (
-      <div>
-        these are keywords ehhhh
-      </div>
+      <Wrapper>
+        {doclist}
+        <Title>
+          Radio
+        </Title>
+      </Wrapper>
     );
   }
 }

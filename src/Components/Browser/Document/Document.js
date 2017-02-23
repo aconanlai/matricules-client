@@ -12,7 +12,7 @@ const Title = styled.span`
   top: -50px;
   left: -50px;
   font-size: 80px;
-  text-shadow: 3px 3px 0px #1eb8d9, 3px 3px 0px #707070;
+  text-shadow: 3px 3px 0px #70D1E7, 3px 3px 0px #707070;
 `;
 
 const Section = styled.div`
@@ -40,12 +40,12 @@ const Keywords = styled.div`
   right: -50px;
   font-size: 40px;
   line-height: 30px;
-  text-shadow: -3px -3px 0px #1eb8d9, -3px -3px 0px #707070;
 `;
 
 const Keyword = styled.span`
   margin: 10px;
   padding: 2px;
+  text-shadow: -3px -3px 0px ${props => props.color}, -3px -3px 0px #707070;
   transition: .2s;
 
   &:hover {
@@ -119,6 +119,7 @@ class Document extends Component {
   }
 
   render() {
+    const keywordcolors = ['#97e8fb', '#70D1E7', '#5bcde8', '#44C2E0', '#1EB5D9', '#04AAD1', '#027692', '#026077', '#267183'];
     return (
       <Doc>
         <Title>
@@ -165,7 +166,7 @@ class Document extends Component {
           </Content>
         </Section>
         <Keywords>
-          {this.state.keywords.map((keyword, i) => { return <Keyword key={i}>{keyword}</Keyword> })}
+          {this.state.keywords.map((keyword, i) => { return <Keyword color={keywordcolors[i]} key={i}>{keyword}</Keyword> })}
         </Keywords>
       </Doc>
     );
